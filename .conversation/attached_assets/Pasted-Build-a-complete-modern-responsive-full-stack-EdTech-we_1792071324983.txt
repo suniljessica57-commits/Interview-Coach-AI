@@ -1,0 +1,42 @@
+Build a complete, modern, responsive, full-stack EdTech web application called Interview Coach AI for students preparing for job interviews.
+
+Goal: Help students practise interviews, receive AI-powered feedback, identify weak topics, and get personalized recommendations on what to study next.
+
+Pages
+
+1. Home: Hero section, clear value proposition, Start Practising button, features, how it works, benefits, and footer.
+2. Student Dashboard: Welcome message, interview statistics, progress chart, recent sessions, and recommended topics.
+3. Interview Setup: Select job role, interview type, difficulty, topic, question count, and text or voice mode.
+4. Live Mock Interview: Display one question at a time, accept answers, show question progress, and provide next-question and end-interview controls.
+5. Results and Feedback: Overall score, question-level feedback, correctness, clarity, strengths, weaknesses, and improved sample answers.
+6. What to Study Next: Personalized learning recommendations, weak-topic explanations, practice questions, study tasks, and completion tracking.
+7. Interview History: Past sessions, scores, dates, roles, and review options.
+8. Profile and Settings: Student details, target role, preferences, and account settings.
+9. About Us: Project problem, solution, objectives, team, and impact.
+10. Help and FAQ: Frequently asked questions and a contact option.
+
+Core functionality
+
+- Role-based interviews.
+- Adaptive follow-up questions based on student answers.
+- AI-generated answer evaluation and constructive feedback.
+- Text interview mode and voice mode where technically supported.
+- Personalized study recommendations based on weak topics.
+- Persistent interview history and progress tracking.
+- Secure authentication and per-user data isolation.
+- Responsive navigation and accessible forms.
+- Clear loading, empty, and error states.
+
+Design
+
+Use a polished, professional educational SaaS design with navy blue, white, and purple accents. Include clean cards, readable typography, subtle animations, clear progress indicators, and mobile-friendly layouts. Avoid overcrowding the pages.
+
+Technical requirements
+
+Use a maintainable frontend, a secure backend and database where needed, and a properly configured AI API for genuine AI functionality. Never expose secret API keys in frontend code.
+
+Make every button and navigation item work. Persist student records securely, calculate scores consistently, and generate recommendations from interview results. If an AI service is not configured, clearly label demo mode and use sample data instead of pretending the AI is connected.
+
+Build the website in stages. First create the page structure and navigation, then implement the interview flow, AI feedback, study recommendations, and saved history. Finally test the complete student journey and prepare the app for deployment.
+
+Start by building the complete responsive interface and core navigation, with a consistent design across all pages.
