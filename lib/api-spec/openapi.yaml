@@ -3,13 +3,19 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Interview Coach AI student, interview, and study progress API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: students
+    description: Student profile and dashboard
+  - name: interviews
+    description: Mock interview practice and results
+  - name: recommendations
+    description: Personalized study recommendations
 paths:
   /healthz:
     get:
@@ -24,6 +30,237 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /me:
+    get:
+      operationId: getMyProfile
+      tags: [students]
+      summary: Get the signed-in student's profile
+      responses:
+        "200":
+          description: Student profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentProfile"
+        "401":
+          description: Authentication required
+    put:
+      operationId: updateMyProfile
+      tags: [students]
+      summary: Update the signed-in student's profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentProfileInput"
+      responses:
+        "200":
+          description: Updated student profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentProfile"
+        "401":
+          description: Authentication required
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [students]
+      summary: Get the signed-in student's dashboard summary
+      responses:
+        "200":
+          description: Dashboard summary with progress, recent sessions, and study recommendations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+        "401":
+          description: Authentication required
+  /interviews:
+    get:
+      operationId: listInterviews
+      tags: [interviews]
+      summary: List the signed-in student's interview history
+      responses:
+        "200":
+          description: Interview history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InterviewSummary"
+        "401":
+          description: Authentication required
+    post:
+      operationId: createInterview
+      tags: [interviews]
+      summary: Create an interview and generate its opening question
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InterviewSetupInput"
+      responses:
+        "201":
+          description: New interview with its first question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InterviewDetail"
+        "401":
+          description: Authentication required
+  /interviews/{interviewId}:
+    parameters:
+      - name: interviewId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      operationId: getInterview
+      tags: [interviews]
+      summary: Get an interview and its questions
+      responses:
+        "200":
+          description: Interview details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InterviewDetail"
+        "401":
+          description: Authentication required
+        "404":
+          description: Interview not found
+  /interviews/{interviewId}/questions/{questionId}/answers:
+    parameters:
+      - name: interviewId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: questionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      operationId: submitInterviewAnswer
+      tags: [interviews]
+      summary: Save and evaluate an answer to an interview question
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InterviewAnswerInput"
+      responses:
+        "200":
+          description: Saved answer and constructive AI feedback
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InterviewAnswerFeedback"
+        "401":
+          description: Authentication required
+        "404":
+          description: Interview or question not found
+  /interviews/{interviewId}/next-question:
+    parameters:
+      - name: interviewId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      operationId: getNextInterviewQuestion
+      tags: [interviews]
+      summary: Generate the next adaptive question
+      responses:
+        "200":
+          description: Next question or indication that the interview is complete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NextInterviewQuestion"
+        "401":
+          description: Authentication required
+        "404":
+          description: Interview not found
+  /interviews/{interviewId}/complete:
+    parameters:
+      - name: interviewId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      operationId: completeInterview
+      tags: [interviews]
+      summary: Complete an interview, calculate the score, and create study recommendations
+      responses:
+        "200":
+          description: Final score and question-by-question feedback
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InterviewResult"
+        "401":
+          description: Authentication required
+        "404":
+          description: Interview not found
+  /recommendations:
+    get:
+      operationId: listRecommendations
+      tags: [recommendations]
+      summary: List the signed-in student's personalized study recommendations
+      responses:
+        "200":
+          description: Study recommendations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudyRecommendation"
+        "401":
+          description: Authentication required
+  /recommendations/{recommendationId}:
+    parameters:
+      - name: recommendationId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    patch:
+      operationId: updateRecommendation
+      tags: [recommendations]
+      summary: Mark a study recommendation complete or incomplete
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecommendationUpdate"
+      responses:
+        "200":
+          description: Updated study recommendation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudyRecommendation"
+        "401":
+          description: Authentication required
+        "404":
+          description: Recommendation not found
 components:
   schemas:
     HealthStatus:
@@ -33,4 +270,245 @@ components:
           type: string
       required:
         - status
+    StudentProfile:
+      type: object
+      properties:
+        userId:
+          type: string
+        displayName:
+          type: string
+        targetRole:
+          type: string
+        experienceLevel:
+          type: ["string", "null"]
+        school:
+          type: ["string", "null"]
+      required: [userId, displayName, targetRole, experienceLevel, school]
+    StudentProfileInput:
+      type: object
+      properties:
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 120
+        targetRole:
+          type: string
+          minLength: 1
+          maxLength: 120
+        experienceLevel:
+          type: ["string", "null"]
+        school:
+          type: ["string", "null"]
+      required: [displayName, targetRole, experienceLevel, school]
+    ScoreTrendPoint:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        score:
+          type: number
+      required: [date, score]
+    DashboardSummary:
+      type: object
+      properties:
+        completedSessions:
+          type: integer
+        averageScore:
+          type: number
+        practiceMinutes:
+          type: integer
+        currentStreak:
+          type: integer
+        scoreTrend:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScoreTrendPoint"
+        recentSessions:
+          type: array
+          items:
+            $ref: "#/components/schemas/InterviewSummary"
+        recommendations:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudyRecommendation"
+      required: [completedSessions, averageScore, practiceMinutes, currentStreak, scoreTrend, recentSessions, recommendations]
+    InterviewSetupInput:
+      type: object
+      properties:
+        role:
+          type: string
+          minLength: 1
+          maxLength: 120
+        interviewType:
+          type: string
+          enum: [behavioral, technical, mixed]
+        difficulty:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        topic:
+          type: ["string", "null"]
+        questionCount:
+          type: integer
+          minimum: 3
+          maximum: 10
+        mode:
+          type: string
+          enum: [text, voice]
+      required: [role, interviewType, difficulty, topic, questionCount, mode]
+    InterviewSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        role:
+          type: string
+        interviewType:
+          type: string
+          enum: [behavioral, technical, mixed]
+        difficulty:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        topic:
+          type: ["string", "null"]
+        mode:
+          type: string
+          enum: [text, voice]
+        aiMode:
+          type: string
+          enum: [live, demo]
+        status:
+          type: string
+          enum: [in_progress, completed]
+        score:
+          type: ["number", "null"]
+        questionCount:
+          type: integer
+        answeredCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: ["string", "null"]
+          format: date-time
+      required: [id, role, interviewType, difficulty, topic, mode, aiMode, status, score, questionCount, answeredCount, createdAt, completedAt]
+    InterviewQuestion:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        position:
+          type: integer
+        prompt:
+          type: string
+        topic:
+          type: string
+        answer:
+          type: ["string", "null"]
+        score:
+          type: ["number", "null"]
+        correctness:
+          type: ["string", "null"]
+        clarity:
+          type: ["string", "null"]
+        strengths:
+          type: array
+          items:
+            type: string
+        improvements:
+          type: array
+          items:
+            type: string
+        sampleAnswer:
+          type: ["string", "null"]
+        isFollowUp:
+          type: boolean
+      required: [id, position, prompt, topic, answer, score, correctness, clarity, strengths, improvements, sampleAnswer, isFollowUp]
+    InterviewDetail:
+      allOf:
+        - $ref: "#/components/schemas/InterviewSummary"
+        - type: object
+          properties:
+            questions:
+              type: array
+              items:
+                $ref: "#/components/schemas/InterviewQuestion"
+          required: [questions]
+    InterviewAnswerInput:
+      type: object
+      properties:
+        answer:
+          type: string
+          minLength: 1
+          maxLength: 12000
+      required: [answer]
+    InterviewAnswerFeedback:
+      type: object
+      properties:
+        question:
+          $ref: "#/components/schemas/InterviewQuestion"
+        nextQuestionAvailable:
+          type: boolean
+      required: [question, nextQuestionAvailable]
+    NextInterviewQuestion:
+      type: object
+      properties:
+        question:
+          anyOf:
+            - $ref: "#/components/schemas/InterviewQuestion"
+            - type: "null"
+        isComplete:
+          type: boolean
+      required: [question, isComplete]
+    InterviewResult:
+      type: object
+      properties:
+        interview:
+          $ref: "#/components/schemas/InterviewDetail"
+        overallScore:
+          type: number
+        strengths:
+          type: array
+          items:
+            type: string
+        weakTopics:
+          type: array
+          items:
+            type: string
+        recommendations:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudyRecommendation"
+      required: [interview, overallScore, strengths, weakTopics, recommendations]
+    StudyRecommendation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        topic:
+          type: string
+        title:
+          type: string
+        explanation:
+          type: string
+        practiceQuestion:
+          type: string
+        estimatedMinutes:
+          type: integer
+        completed:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, topic, title, explanation, practiceQuestion, estimatedMinutes, completed, createdAt]
+    RecommendationUpdate:
+      type: object
+      properties:
+        completed:
+          type: boolean
+      required: [completed]
 
